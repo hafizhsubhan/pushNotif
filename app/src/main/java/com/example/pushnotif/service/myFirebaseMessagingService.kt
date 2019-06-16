@@ -7,25 +7,41 @@ import android.content.Context
 import android.content.Intent
 import android.media.RingtoneManager
 import android.os.Build
+import android.os.Handler
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import com.example.pushnotif.MainActivity
-import com.example.pushnotif.R
+import android.widget.Toast
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import android.os.Looper
+import androidx.core.app.NotificationCompat
+import android.R
+import android.view.View
+import com.example.pushnotif.MainActivity
+import android.widget.Toast.makeText as makeText1
+
 
 class myFirebaseMessagingService : FirebaseMessagingService() {
 
-    override fun onMessageReceived(message: RemoteMessage?) {
-        super.onMessageReceived(message)
-
-        Log.e("message","abc")
-        message?.from
+    override fun onMessageReceived(remoteMessage: RemoteMessage?) {
+        Log.d("pesan","From: " +remoteMessage!!.from!!)
+        val handler = Handler(Looper
+            .getMainLooper())
+        handler.post(Runnable {
+            Toast.makeText(applicationContext,
+                remoteMessage.notification!!.body!!,Toast.LENGTH_SHORT).show()
+        sendNotification(remoteMessage.notification!!.body!!)})
     }
 
     override fun onNewToken(token: String?) {
         super.onNewToken(token)
         Log.e("token", token)
+        if (token != null) {
+            sendRegistrationToServer(token)
+        }
+    }
+
+    private fun sendRegistrationToServer(token: String) {
+        // Add custom implementation, as needed.
     }
 
     private fun sendNotification(messageBody: String) {
@@ -39,7 +55,7 @@ class myFirebaseMessagingService : FirebaseMessagingService() {
         val channelId = "Notifikasi"
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.drawable.ic_dialog_info)
             .setContentTitle("notifikasi")
             .setContentText(messageBody)
             .setAutoCancel(true)
